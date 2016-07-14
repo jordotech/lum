@@ -7,7 +7,7 @@ INSTALLED_APPS += (
     'debug_toolbar',
     'template_debug',
 )
-
+STATIC_ROOT = "/webapps/lum/static-collect/"
 
 SECRET_KEY = os.environ["SECRET_KEY_LOCAL"]
 DATABASES = {

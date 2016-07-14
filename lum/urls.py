@@ -4,7 +4,7 @@ from django.contrib import admin
 admin.autodiscover()
 from django.conf import settings
 
-
+from django.conf.urls.static import static
 
 
 from lum.views import home
@@ -12,7 +12,8 @@ from lum.views import home
 urlpatterns = [
     url(r'^$', home, name='home'),
     url(r'^(?i)admin/', include(admin.site.urls)),
-]
+]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
 
 if not settings.DEBUG:
     # static files (images, css, javascript, etc.)
