@@ -42,13 +42,33 @@ class Author(models.Model):
         verbose_name_plural = 'Authors'
     def __unicode__(self):
         return self.name
+#from taggit.managers import TaggableManager
+from taggit_autosuggest.managers import TaggableManager
+#from taggit.managers import TaggableManager
+from taggit.models import TaggedItemBase
+
+class CISTags(TaggedItemBase):
+    content_object = models.ForeignKey('Publication')
+
+    def classname(self):
+        classname = self.__class__.__name__
+        return classname
+
+    class Meta:
+        verbose_name = 'CIS Keyword Tag'
+        verbose_name_plural = 'CIS Keyword Tags'
+
+    def __unicode__(self):
+        return "CIS Keyword - %s" % self.doi
 
 class Publication(models.Model):
     pmid = models.CharField("PMID", max_length=255)
+    title = models.CharField("Title", max_length=500, blank=True, null=True,)
     abstract = models.TextField('Abstract', blank=True, null=True)
     doi = models.CharField("DOI", blank=True, null=True, help_text="Digital object identifier", max_length=255)
     authors = models.ManyToManyField(Author, related_name="author_set", verbose_name="authors")
     labs = models.ManyToManyField(Lab, related_name="pub_set", verbose_name="labs", blank=True, )
+    cis_keywords = TaggableManager("CIS Keywords", through=CISTags, help_text="Search terms used to find this publication on PubSearch")
     def classname(self):
         classname = self.__class__.__name__
         return classname

@@ -12,6 +12,7 @@ from lum.views import home
 urlpatterns = [
     url(r'^$', home, name='home'),
     url(r'^(?i)admin/', include(admin.site.urls)),
+    url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 

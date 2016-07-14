@@ -19,11 +19,18 @@ class Command(BaseCommand):
         return ret
     def get_pmid(self, row):
         if len(row[15]) > 0:
-            return row[15]
+            return row[15] #empty in csv
         elif len(row[16]) > 0:
             return row[16]
         else:
             return ''
+    def add_cis_tags(self, pub, row):
+        cis_keywords = row[38]  # this is what they used as search terms to get this article
+        cis_keywords = cis_keywords.split(';')
+        for ck in cis_keywords:
+            pub.cis_keywords.add(unicode(ck))
+    def add_journal_keywords(self, pub, row):
+        journal_keywords = row[50]
     def get_lab(self, row):
         lab = None
         organization = row[31]
@@ -82,7 +89,7 @@ class Command(BaseCommand):
 
                 url = row[18]
                 file_attachments = row[19]
-                author_address_from_pubmed = row[20]
+                author_address_from_pubmed = row[20] #empty column
                 figure = row[21]
                 cis_acc = row[22]
                 access_date = row[23]
@@ -95,23 +102,24 @@ class Command(BaseCommand):
                 reprint_author_email = row[30]
 
 
-                cis_keywords = row[38]
+
                 ecopy = row[39]
                 paper_type = row[40]
                 species = row[41]
                 assay = row[42]
-                sample_type = row[43]
+                sample_type = row[43] #this is the article title...
                 whos_kit = row[44]
                 misc = row[45]
                 application = row[46]
                 market_segment = row[47]
                 subsidiary_author = row[48]
                 custom_6 = row[49]
-                journal_keywords = row[50]
+
                 issn = row[51]
 
 
                 pub = Publication(
+                    title=sample_type,
                     pmid=pmid,
                     doi=doi,
                     abstract=abstract,
@@ -128,6 +136,7 @@ class Command(BaseCommand):
                         pub.pmid = fresh_data['pmid']
 
                 pub.save()
+                self.add_cis_tags(pub, row)
                 authors = self.get_authors(row)
                 for author in authors:
                     pub.authors.add(author)

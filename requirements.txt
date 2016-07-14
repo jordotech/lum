@@ -46,3 +46,5 @@ Unidecode==0.4.19
 virtualenv==15.0.2
 Werkzeug==0.11.10
 wheel==0.24.0
+
+hg+https://bitbucket.org/fabian/django-taggit-autosuggest/#egg=django_taggit_autosuggest

@@ -15,7 +15,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'lum',
-
+    'taggit',
+    #'taggit_templatetags',
+    'taggit_autosuggest',
     'django_extensions',
 )
 TEMPLATES = [
