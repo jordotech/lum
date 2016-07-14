@@ -9,7 +9,6 @@ INSTALLED_APPS += (
 )
 STATIC_ROOT = "/webapps/lum/static-collect/"
 
-SECRET_KEY = os.environ["SECRET_KEY_LOCAL"]
 DATABASES = {
     'default': {
         #'ENGINE': 'django_postgrespool',
