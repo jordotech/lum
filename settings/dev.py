@@ -2,7 +2,7 @@ from .base import *
 import os
 DEBUG = False
 SITE_ID = 2
-
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'nomral.com']
 INSTALLED_APPS += (
     'debug_toolbar',
     'template_debug',
