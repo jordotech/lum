@@ -9,9 +9,14 @@ class Command(BaseCommand):
         if 'doi.org' in doi_url:
             return doi_url.split('http://dx.doi.org/')[-1]
         return ''
-    def get_author_names(self, row):
+    def get_authors(self, row):
         authors_row = row[2]
-        return authors_row.split(';')
+        name_list =  authors_row.split(';')
+        ret = []
+        for name in name_list:
+            author = Author.objects.get_or_create(name=name)[0]
+            ret.append(author)
+        return ret
     def get_pmid(self, row):
         if len(row[15]) > 0:
             return row[15]
@@ -19,6 +24,29 @@ class Command(BaseCommand):
             return row[16]
         else:
             return ''
+    def get_lab(self, row):
+        lab = None
+        organization = row[31]
+        department = row[32]
+        address = row[33]
+        city = row[34]
+        province = row[35]
+        postal_code = row[36]
+        country = row[37]
+        try:
+            lab = Lab.objects.get(address=address, city=city)
+        except:
+            lab = Lab(
+                address=address,
+                department=department,
+                organization=organization,
+                city=city,
+                province=province,
+                postal_code = postal_code,
+                country=country,
+            )
+            lab.save()
+        return lab
     def handle(self, *args, **options):
         csvfile = "pmids.csv"
         with open(csvfile, 'rU') as f:
@@ -26,11 +54,13 @@ class Command(BaseCommand):
 
             count = 0
             for row in reader:
+                if count == 0:
+                    count += 1
+                    continue #skip first header row
                 if count == 10: break
                 ref_id = row[0]
                 ref_type = row[1]
-                authors = self.get_author_names(row)
-                print authors
+
                 year = row[3]
                 article_title = row[4]
                 secondary_author = row[5]
@@ -48,26 +78,7 @@ class Command(BaseCommand):
                 #pmid_from_updates = row[16]
                 pmid = self.get_pmid(row)
                 abstract = row[17]
-                pub = Publication(
-                    pmid = pmid,
-                    doi = doi,
-                    abstract = abstract,
-                )
-                fresh_data = None
-                if len(pmid) < 1:
-                    fetch = PubMedFetcher()
-                    try:
-                        fresh_data = fetch.article_by_doi(doi)
-                        fresh_data = fresh_data.to_dict()
-                    except:
-                        pass
-                    else:
-                        pub.pmid = fresh_data['pmid']
 
-                pub.save()
-                for author in authors:
-                    a = Author.objects.get_or_create(name=author)[0]
-                    pub.authors.add(a)
 
                 url = row[18]
                 file_attachments = row[19]
@@ -82,13 +93,8 @@ class Command(BaseCommand):
                 reprint_author_name = row[28]
                 blank = row[29]
                 reprint_author_email = row[30]
-                organization = row[31]
-                department = row[32]
-                address = row[33]
-                city = row[34]
-                province = row[35]
-                postal_code = row[36]
-                country = row[37]
+
+
                 cis_keywords = row[38]
                 ecopy = row[39]
                 paper_type = row[40]
@@ -103,4 +109,36 @@ class Command(BaseCommand):
                 custom_6 = row[49]
                 journal_keywords = row[50]
                 issn = row[51]
+
+
+                pub = Publication(
+                    pmid=pmid,
+                    doi=doi,
+                    abstract=abstract,
+                )
+                fresh_data = None
+                if len(pmid) < 1:
+                    fetch = PubMedFetcher()
+                    try:
+                        fresh_data = fetch.article_by_doi(doi)
+                        fresh_data = fresh_data.to_dict()
+                    except:
+                        pass
+                    else:
+                        pub.pmid = fresh_data['pmid']
+
+                pub.save()
+                authors = self.get_authors(row)
+                for author in authors:
+                    pub.authors.add(author)
+                lab = self.get_lab(row)
+
+                if lab:
+                    for author in authors:
+                        author.labs.add(lab)
+                    pub.labs.add(lab)
+
+
+
+
                 count += 1

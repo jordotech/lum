@@ -19,6 +19,7 @@ last.commit
 build
 eggs
 parts
+*.csv
 var
 sdist
 develop-eggs
