@@ -38,5 +38,5 @@ admin.site.register(Author, AuthorAdmin)
 
 class PublicationAdmin(admin.ModelAdmin):
     list_display = (u'id', 'pmid', 'title', 'doi')
-    raw_id_fields = ('authors',)
+    #raw_id_fields = ('authors',)
 admin.site.register(Publication, PublicationAdmin)
