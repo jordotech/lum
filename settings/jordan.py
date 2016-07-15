@@ -4,7 +4,7 @@ DEBUG = True
 SITE_ID = 2
 def show_toolbar(request):
     return True
-
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'lum.com']
 DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': 'settings.jordan.show_toolbar',
 }
@@ -14,7 +14,8 @@ INSTALLED_APPS += (
     'template_debug',
 )
 
-
+STATIC_ROOT = "/vagrant-data/lum/static/"
+STATIC_URL ='/static/'
 SECRET_KEY = os.environ["SECRET_KEY_LOCAL"]
 DATABASES = {
     'default': {
