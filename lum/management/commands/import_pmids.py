@@ -61,10 +61,15 @@ class Command(BaseCommand):
 
             count = 0
             for row in reader:
+                pmid = self.get_pmid(row)
+
                 if count == 0:
                     count += 1
                     continue #skip first header row
-                if count == 10: break
+                if Publication.objects.filter(pmid=pmid).count() > 0:
+                    count += 1
+                    continue
+                if count == 3000: break
                 ref_id = row[0]
                 ref_type = row[1]
 
@@ -83,7 +88,7 @@ class Command(BaseCommand):
                 print doi
                 #pmid_from_ref = row[15]
                 #pmid_from_updates = row[16]
-                pmid = self.get_pmid(row)
+
                 abstract = row[17]
 
 

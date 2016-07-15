@@ -59,7 +59,7 @@ class CISTags(TaggedItemBase):
         verbose_name_plural = 'CIS Keyword Tags'
 
     def __unicode__(self):
-        return "CIS Keyword - %s" % self.doi
+        return "CIS Keyword - %s" % self.pk
 
 class Publication(models.Model):
     pmid = models.CharField("PMID", max_length=255)
