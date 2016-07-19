@@ -1,5 +1,5 @@
 from django.db import models
-
+import datetime
 from django.db.models.signals import pre_delete, post_save
 #from django.contrib.localflavor.us.models import USPostalCodeField, USStateField, PhoneNumberField
 from django.conf import settings
@@ -59,8 +59,10 @@ class CISTags(TaggedItemBase):
 
     def __unicode__(self):
         return "CIS Keyword - %s" % self.pk
-
+from django.utils import timezone
 class Publication(models.Model):
+    created = models.DateTimeField(editable=False, default=timezone.now())
+    modified = models.DateTimeField(default=timezone.now())
     pmid = models.CharField("PMID", max_length=255)
     title = models.CharField("Title", max_length=500, blank=True, null=True,)
     abstract = models.TextField('Abstract', blank=True, null=True)
@@ -78,6 +80,12 @@ class Publication(models.Model):
     def __unicode__(self):
         return "Publication - %s" % self.doi
 
+    def save(self, *args, **kwargs):
+        ''' On save, update timestamps '''
+        if not self.id:
+            self.created = timezone.now()
+        self.modified = timezone.now()
+        return super(Publication, self).save(*args, **kwargs)
 
 '''
 class UserPmid(models.Model):
@@ -88,15 +96,19 @@ class UserPmid(models.Model):
 
 
 class SearchStash(models.Model):
+    created = models.DateTimeField(editable=False, default=timezone.now())
+    modified = models.DateTimeField(default=timezone.now())
     search_used = models.CharField("Search Used", max_length=255)
     user = models.ForeignKey(User)
     pmids = models.ManyToManyField(Publication)
 
     def save(self, *args, **kwargs):
-        if SearchStash.objects.filter(user=self.user, search_used=self.search_used).count() > 0:
-            raise FieldError( 'The user already has this search saved')
-            return
-        super(SearchStash, self).save(*args, **kwargs)
+        ''' On save, update timestamps '''
+        if not self.id:
+            self.created = timezone.now()
+        self.modified = timezone.now()
+        return super(SearchStash, self).save(*args, **kwargs)
+
 
     def get_absolute_url(self):
         return "/saved-searches/%s/" % str(self.id)
