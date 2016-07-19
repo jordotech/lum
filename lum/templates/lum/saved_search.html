@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block navbar %}
+
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+
+                <a class="navbar-brand" href="/">Pubmed Searcher</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+
+                    {% if not request.user.is_anonymous %}
+                        <li><a href="/logout/?next={{ request.path }}">Logout</a></li>
+                        <li><a href="/search/">New Search</a></li>
+                    {% endif %}
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+{% endblock %}
+{% block content %}
+
+    <h1>Saved Query</h1>
+    <blockquote>{{ obj.search_used }}</blockquote>
+    <table class="table">
+                <thead>
+                <th>Actions</th>
+                <th>PMID</th>
+                <th>Title</th>
+                <th>Date</th>
+                </thead>
+                <tbody>
+                {% for result in obj.pmids.all %}
+                    <tr>
+                        <td>
+                            <button type="button" class="btn btn-danger" data-toggle="tooltip" data-placement="top"
+                                    title="Tag for {{ keywords }}">
+                                Remove
+                            </button>
+                        </td>
+                        <td>{{ result.pmid }} <a target="_blank"
+                                                 href="http://www.ncbi.nlm.nih.gov/pubmed/{{ result.pmid }}">link</a>
+                        </td>
+                        <td>{{ result.title }}</td>
+                        <td>{{ result.date|date:"m/d/Y" }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+{% endblock %}

@@ -97,3 +97,6 @@ class SearchStash(models.Model):
             raise FieldError( 'The user already has this search saved')
             return
         super(SearchStash, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return "/saved-searches/%s/" % str(self.id)
