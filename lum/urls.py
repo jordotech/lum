@@ -15,7 +15,7 @@ urlpatterns = [
     url(r'^saved-searches/(?P<pk>\S+?)/$', saved_searches, name='saved_search'),
     url(r'^saved-searches/$', saved_searches, name='saved_search_list'),
     url(r'^save-user-query/(?P<query>.*)/$', save_user_query, name='save_user_query'),
-    url(r'^save-pmid-to-query/(?P<pk>\S+?)/(?P<pmid>\S+?)/$', save_pmid_to_query, name='save_pmid_to_query'),
+    url(r'^save-pmid-to-query/(?P<query_id>\S+?)/(?P<pmid>\S+?)/$', save_pmid_to_query, name='save_pmid_to_query'),
     url(r'^delete-user-query/(?P<pk>\S+?)/$', delete_user_query, name='delete_user_query'),
     url(r'^(?i)admin/', include(admin.site.urls)),
     url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')),

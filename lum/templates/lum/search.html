@@ -30,7 +30,7 @@
                     {% if request.GET.q %}
                         {% if query_saved %}
                             <li>
-                                <button type="button" class="navbar-btn btn btn-success" aria-label="Left Align">
+                                <button type="button" class="navbar-btn btn btn-info" aria-label="Left Align">
                                     <span>Saved &nbsp;</span><span class="glyphicon glyphicon-ok"
                                                                    aria-hidden="true"></span>
                                 </button>
@@ -71,6 +71,7 @@
                 <thead>
                 <th>Actions</th>
                 <th>PMID</th>
+                <th>Review</th>
                 <th>Title</th>
                 <th>Date</th>
                 </thead>
@@ -79,15 +80,19 @@
                     <tr>
                         <td>
                             {% if query_saved %}
-                            <button data-toggle="tooltip" data-placement="top"
+                                {% if result.pmid in saved_pmids %}
+                                <span class="glyphicon glyphicon-link" aria-hidden="true"></span>
+                                <span>Linked</span>
+                                    {% else %}
+                                    <a href="{% url "save_pmid_to_query" query_saved.id result.pmid %}" data-toggle="tooltip" data-placement="top"
                                     title="Capture PMID for this query"
                                     type="button" class="navbar-btn btn btn-success" aria-label="Left Align">
-{% comment %}
-                                    <span>Capture &nbsp;</span>
-{% endcomment %}
+
                                 <span class="glyphicon glyphicon-save"
                                                                    aria-hidden="true"></span>
-                                </button>
+                                </a>
+                                    {% endif %}
+
 {% comment %}                            <button data-toggle="tooltip" data-placement="top"
                                     title="Hide PMID for this query" type="button" class="navbar-btn btn btn-danger" aria-label="Left Align">
                                 <span class="glyphicon glyphicon-remove-circle"
@@ -98,9 +103,15 @@
                             {% endif %}
 
                         </td>
-                        <td>{{ result.pmid }} <a target="_blank"
-                                                 href="http://www.ncbi.nlm.nih.gov/pubmed/{{ result.pmid }}">link</a>
+                        <td>{{ result.pmid }}
                         </td>
+                    <td>
+                        <a class="btn btn-info" target="_blank"
+                                                 href="http://www.ncbi.nlm.nih.gov/pubmed/{{ result.pmid }}">
+                            <span>PubMed &nbsp;</span>
+                            <span class="glyphicon glyphicon-align-left" aria-hidden="true"></span>
+                        </a>
+                    </td>
                         <td>{{ result.title }}</td>
                         <td>{{ result.date|date:"m/d/Y" }}</td>
                     </tr>

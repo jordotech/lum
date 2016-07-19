@@ -39,10 +39,10 @@ def save_user_query(request, query=None):
     return HttpResponseRedirect(url)
 
 @login_required
-def save_pmid_to_query(request, query_pk, pmid):
-    pmid = Publication.objects.get(pk=pmid)
-    query = SearchStash.objects.get(pk=query_pk)
-    query.pmids.add(pmid)
+def save_pmid_to_query(request, query_id, pmid):
+    pub = Publication.objects.get_or_create(pmid=pmid)[0]
+    query = SearchStash.objects.get(pk=query_id)
+    query.pmids.add(pub)
     url = '/search/?q=%s' % query.search_used
     return HttpResponseRedirect(url)
 
@@ -70,7 +70,7 @@ def search(request):
         query_saved = SearchStash.objects.get(search_used=request.GET.get('q'))
     except: pass
     else:
-        ctx['saved_pmids'] = [pmid['pmid'] for pmid in query_saved.pmids.all()]
+        ctx['saved_pmids'] = [pub.pmid for pub in query_saved.pmids.all()]
         ctx['query_saved'] = query_saved
 
     if not ctx['query_saved'] and request.GET.get('q'):
