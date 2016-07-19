@@ -10,7 +10,7 @@
     <!-- Bootstrap -->
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-{% comment %}
+    {% comment %}
     <link rel="stylesheet" href="{{ STATIC_URL }}skin/stylesheets/app.css">
 {% endcomment %}
 
@@ -48,6 +48,15 @@
 <body style="padding-top:65px;{% if hex %}height:100%;background-color:#{{ hex }};{% endif %}">
 <div class="container-fluid">
     {% block navbar %}{% endblock %}
+    {% autoescape off %}
+        {% for message in messages %}
+            <div class="alert alert-info alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endautoescape %}
     {% block content %}{% endblock %}
 
 </div>
@@ -60,9 +69,9 @@
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 
 <script>
-$(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-})
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
 </script>
 </body>
 </html>

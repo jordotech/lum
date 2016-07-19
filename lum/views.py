@@ -2,11 +2,14 @@
 from lum.forms import PubMedForm
 from django.shortcuts import render_to_response, render
 from metapub import PubMedFetcher
+from django.http import HttpResponseRedirect
 from datetime import datetime
 #from metapub.utils import asciify
-
+import logging
+logger = logging.getLogger('lum')
 from lum.models import Publication, SearchStash
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 def home(request):
     ctx = {}
@@ -29,14 +32,49 @@ def saved_searches(request, pk=None):
     return render(request, 'lum/saved_search.html', ctx)
 
 @login_required
+def save_user_query(request, query=None):
+    query = query.replace('/','')
+    SearchStash.objects.create(search_used=query, user=request.user)
+    url = '/search/?q=%s' % query
+    return HttpResponseRedirect(url)
+
+@login_required
+def save_pmid_to_query(request, query_pk, pmid):
+    pmid = Publication.objects.get(pk=pmid)
+    query = SearchStash.objects.get(pk=query_pk)
+    query.pmids.add(pmid)
+    url = '/search/?q=%s' % query.search_used
+    return HttpResponseRedirect(url)
+
+@login_required
+def delete_user_query(request, pk):
+
+    SearchStash.objects.filter(pk=pk, user=request.user).delete()
+    next = request.GET.get('next', None)
+    if next:
+        return HttpResponseRedirect(next)
+    else:
+        return HttpResponseRedirect('/saved-searches/')
+
+@login_required
 def search(request):
     ctx = {
-        'query_saved':False,
+        'query_saved' : None,
+        'saved_pmids':[],
+        'total_saved_queries':SearchStash.objects.filter(user=request.user).count(),
     }
     f = PubMedFetcher()
     initial = {}
-    if SearchStash.objects.filter(search_used=request.GET.get('q')).count() > 0:
-        ctx['query_saved'] = True
+    query_saved = None
+    try:
+        query_saved = SearchStash.objects.get(search_used=request.GET.get('q'))
+    except: pass
+    else:
+        ctx['saved_pmids'] = [pmid['pmid'] for pmid in query_saved.pmids.all()]
+        ctx['query_saved'] = query_saved
+
+    if not ctx['query_saved'] and request.GET.get('q'):
+        messages.add_message(request, messages.INFO, '<strong>Note:</strong> You must click "Save Query" above to start capturing publications for this query.')
     if request.GET.get('q', None):
         keywords = request.GET.get('q', None)
         initial['q'] = request.GET.get('q')

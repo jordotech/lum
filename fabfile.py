@@ -9,7 +9,7 @@ def clear():
     Lab.objects.all().delete()
     Author.objects.all().delete()
     Publication.objects.all().delete()
-
+    SearchStash.objects.all().delete()
 
 def psearch(pmid):
     fetch = PubMedFetcher()

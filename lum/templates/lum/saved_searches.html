@@ -32,6 +32,7 @@
                 <thead>
                 <th>Actions</th>
                 <th>Query</th>
+                <th></th>
                 <th># Saved PMIDs</th>
                 <th>Created</th>
                 <th>Last Modified</th>
@@ -40,15 +41,22 @@
                 {% for q in list %}
                     <tr>
                         <td>
-                            <button type="button" class="btn btn-danger" data-toggle="tooltip" data-placement="top"
+                            <a href="{% url "delete_user_query" q.id %}" type="button" class="btn btn-sm btn-danger" data-toggle="tooltip" data-placement="top"
                                     title="Delete?">
                                 Delete
-                            </button>
+                            </a>
                         </td>
-                        <td><a href="{% url "saved_search" q.id %}">{{ q.search_used }}</a></td>
+                        <td>
+                            <a href="{% url "saved_search" q.id %}">{{ q.search_used }}</a>
+
+                        </td>
+                        <td>
+                           <a class="btn btn-success btn-sm" href="/search/?q={{ q.search_used }}">Run Search</a>
+
+                        </td>
                         <td>{{ q.pmids.all.count }}</td>
-                        <td></td>
-                        <td></td>
+                        <td>{{ q.created }}</td>
+                        <td>{{ q.modified }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
