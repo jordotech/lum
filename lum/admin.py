@@ -1,18 +1,24 @@
 from django.contrib import admin
+from django.db import models
 
-from .models import Lab, Author, Publication
+from .models import Lab, Author, Publication, SearchStash
 
 class PublicationsInline(admin.TabularInline):
     model = Publication.labs.through
     extra = 0
-
+class SearchStashPubsInline(admin.TabularInline):
+    model = Publication.labs.through
+    extra = 0
 class AuthorsInline(admin.TabularInline):
     model = model = Author.labs.through
     extra = 0
-from django.db import models
+
+class SearchStashAdmin(admin.ModelAdmin):
+    list_display = ('user', 'search_used',)
+    #inlines = [SearchStashPubsInline,]
+admin.site.register(SearchStash, SearchStashAdmin)
+
 class LabAdmin(admin.ModelAdmin):
-
-
 
     def get_queryset(self, request):
         qs = super(LabAdmin, self).get_queryset(request)

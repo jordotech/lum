@@ -2,7 +2,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 SECRET_KEY = 'g+)@fwqh$60!^hu^p%0xsm=5e50vg&+f!dkz8fbbm*1_t$yop3'
-
+LOGIN_REDIRECT_URL = '/'
 DEBUG = True
 ALLOWED_HOSTS = []
 

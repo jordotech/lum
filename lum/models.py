@@ -7,10 +7,11 @@ from django.conf import settings
 import json
 import logging
 
+from taggit_autosuggest.managers import TaggableManager
+from taggit.models import TaggedItemBase
+from django.contrib.auth.models import User
 
-
-
-
+from django.core.exceptions import FieldError
 class Lab(models.Model):
     name = models.CharField('Name', max_length=200, blank=True, null=True)
     address = models.CharField('Address', max_length=200, blank=True, null=True)
@@ -42,10 +43,8 @@ class Author(models.Model):
         verbose_name_plural = 'Authors'
     def __unicode__(self):
         return self.name
-#from taggit.managers import TaggableManager
-from taggit_autosuggest.managers import TaggableManager
-#from taggit.managers import TaggableManager
-from taggit.models import TaggedItemBase
+
+
 
 class CISTags(TaggedItemBase):
     content_object = models.ForeignKey('Publication')
@@ -69,6 +68,7 @@ class Publication(models.Model):
     authors = models.ManyToManyField(Author, related_name="author_set", verbose_name="authors")
     labs = models.ManyToManyField(Lab, related_name="pub_set", verbose_name="labs", blank=True, )
     cis_keywords = TaggableManager("CIS Keywords", through=CISTags, help_text="Search terms used to find this publication on PubSearch")
+
     def classname(self):
         classname = self.__class__.__name__
         return classname
@@ -77,3 +77,23 @@ class Publication(models.Model):
         verbose_name_plural = 'Publications'
     def __unicode__(self):
         return "Publication - %s" % self.doi
+
+
+'''
+class UserPmid(models.Model):
+    publication = models.ForeignKey(Publication)
+    user = models.ForeignKey(User)
+    staff_notes = models.TextField('Staff Notes', blank=True, null=True)
+'''
+
+
+class SearchStash(models.Model):
+    search_used = models.CharField("Search Used", max_length=255)
+    user = models.ForeignKey(User)
+    pmids = models.ManyToManyField(Publication)
+
+    def save(self, *args, **kwargs):
+        if SearchStash.objects.filter(user=self.user, search_used=self.search_used).count() > 0:
+            raise FieldError( 'The user already has this search saved')
+            return
+        super(SearchStash, self).save(*args, **kwargs)
