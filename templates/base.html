@@ -45,8 +45,9 @@
 
     </script>
 </head>
-<body style="{% if hex %}height:100%;background-color:#{{ hex }};{% endif %}">
+<body style="padding-top:65px;{% if hex %}height:100%;background-color:#{{ hex }};{% endif %}">
 <div class="container-fluid">
+    {% block navbar %}{% endblock %}
     {% block content %}{% endblock %}
 
 </div>

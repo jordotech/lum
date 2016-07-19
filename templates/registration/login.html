@@ -1,12 +1,32 @@
-<form action="{% url 'login' %}" method="post" accept-charset="utf-8">
-    {% csrf_token %}
-    {% for field in form %}
-        <label>{{ field.label }}</label>
-        {% if field.errors %}
-            {{ field.errors }}
-        {% endif %}
-        {{ field }}
-    {% endfor %}
-    <input type="hidden" name="next" value="{{ next }}" />
-    <input class="button small" type="submit" value="Submit"/>
-</form>
+{% extends "base.html" %}
+{% block navbar %}
+    <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+
+                    <a class="navbar-brand" href="/">Pubmed Searcher</a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li><a href="#">Lost Password?</a></li>
+                    </ul>
+
+
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-6">
+            {% include "registration/login_form.html" %}
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+
+
+{% endblock %}

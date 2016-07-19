@@ -1,12 +1,41 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block navbar %}
+
+      <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+
+                    <a class="navbar-brand" href="/">Pubmed Searcher</a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+<ul class="nav navbar-nav">
+
+                        {% if not request.user.is_anonymous %}
+                            <li><a href="/logout/?next={{ request.path }}">Logout</a></li>
+                            <li><a href="/search/">New Search</a></li>
+                        {% endif %}
+
+                    </ul>
+
+
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+{% endblock %}
 {% block content %}
 
+    {% if request.user.is_anonymous %}
     <div class="row">
-        <div class="col-md-12">
-            <h1>PubMed Tagger</h1>
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            {% include "registration/login_form.html" %}
         </div>
+        <div class="col-md-4"></div>
     </div>
+    {% endif %}
 
 {% endblock %}
