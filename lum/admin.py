@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.db import models
 
-from .models import Lab, Author, Publication, SearchStash
+from .models import Lab, Author, Publication, SearchStash, AuthorAffiliation
 
 class PublicationsInline(admin.TabularInline):
     model = Publication.labs.through
@@ -57,13 +57,28 @@ class LabAdmin(admin.ModelAdmin):
     list_filter = ('country',)
 admin.site.register(Lab, LabAdmin)
 
-
+class AuthorAffiliationInline(admin.TabularInline):
+    model = AuthorAffiliation
+    extra = 0
 class AuthorAdmin(admin.ModelAdmin):
-    list_display = (u'id', 'name')
-    #raw_id_fields = ('labs',)
-    search_fields = ('name',)
+    def affiliations_count(self, obj):
+        return obj.authoraffiliation_set.all().count()
+    list_display = (u'id',
+                    'last_name',
+                    'first_name',
+                    'initials',
+                    'affiliations_count',
+                    )
+    inlines = [AuthorAffiliationInline]
+    search_fields = ('last_name',)
 admin.site.register(Author, AuthorAdmin)
 
+class AuthorAffAdmin(admin.ModelAdmin):
+    list_display = (u'id',
+                    'affiliation',
+                    'author',
+                    )
+admin.site.register(AuthorAffiliation, AuthorAffAdmin)
 
 class PublicationAdmin(admin.ModelAdmin):
     list_display = (u'id', 'pmid', 'title', 'doi')

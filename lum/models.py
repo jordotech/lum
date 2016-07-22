@@ -32,9 +32,13 @@ class Lab(models.Model):
         return "%s" % self.organization
 
 class Author(models.Model):
-    name = models.CharField('Name', max_length=200)
-    labs = models.ManyToManyField(Lab, related_name="author_set", verbose_name="labs", blank=True,)
-
+    first_name = models.CharField('First Name', max_length=200)
+    last_name = models.CharField('Last Name', max_length=200)
+    initials = models.CharField('Initials', max_length=20)
+    labs = models.ManyToManyField(Lab, related_name="author_set", verbose_name="labs", blank=True, null=True,)
+    @property
+    def full_name(self):
+        return '%s, %s' % (self.last_name, self.first_name)
     def classname(self):
         classname = self.__class__.__name__
         return classname
@@ -42,9 +46,16 @@ class Author(models.Model):
         verbose_name = 'Author'
         verbose_name_plural = 'Authors'
     def __unicode__(self):
-        return self.name
+        return self.full_name
 
+#class AuthorIdentifier(models.Model):
+    #identifier = models.CharField('Identifier', max_length=200, help_text="see https://www.nlm.nih.gov/bsd/mms/medlineelements.html#auid")
+    #author = models.ForeignKey(Author)
 
+class AuthorAffiliation(models.Model):
+    affiliation = models.TextField('Affiliation', blank=True, null=True)
+    identifier = models.CharField('Identifier', max_length=200, help_text="see https://www.nlm.nih.gov/bsd/mms/medlineelements.html#auid")
+    author = models.ForeignKey(Author)
 
 class CISTags(TaggedItemBase):
     content_object = models.ForeignKey('Publication')
@@ -60,6 +71,10 @@ class CISTags(TaggedItemBase):
     def __unicode__(self):
         return "CIS Keyword - %s" % self.pk
 from django.utils import timezone
+from metapub import PubMedFetcher
+from Bio import Entrez
+import logging
+logger = logging.getLogger('lum')
 class Publication(models.Model):
     created = models.DateTimeField(editable=False, default=timezone.now())
     modified = models.DateTimeField(default=timezone.now())
@@ -69,8 +84,46 @@ class Publication(models.Model):
     doi = models.CharField("DOI", blank=True, null=True, help_text="Digital object identifier", max_length=255)
     authors = models.ManyToManyField(Author, related_name="author_set", verbose_name="authors")
     labs = models.ManyToManyField(Lab, related_name="pub_set", verbose_name="labs", blank=True, )
-    cis_keywords = TaggableManager("CIS Keywords", through=CISTags, help_text="Search terms used to find this publication on PubSearch")
+    cis_keywords = TaggableManager("Queries used", through=CISTags, help_text="Search terms used to find this publication on PubMed")
+    def update_authors(self, authors):
+        for row in authors:
+            last_name = row['LastName']
+            initials = row['Initials']
+            first_name = row['ForeName']
+            author = Author.objects.get_or_create(
+                first_name=first_name,
+                last_name=last_name,
+                initials=initials,
+            )[0]
+            for aff in row['AffiliationInfo']:
+                author_aff = AuthorAffiliation.objects.get_or_create(
+                    affiliation=aff['Affiliation'],
+                    author=author,
+                )[0]
 
+    def self_update(self, query=None):
+        Entrez.email = "jordotech@gmail.com"
+        handle = Entrez.efetch(db="pubmed", id=self.pmid, retmode="xml")
+        data = Entrez.read(handle)
+        handle.close()
+        authors = []
+        article = data[0]['MedlineCitation']['Article']
+        try: authors = article['AuthorList']
+        except: pass
+        else:
+            self.update_authors(authors)
+
+        abstract = ''
+        try: abstract = article['Abstract']['AbstractText']
+        except: pass
+        else:
+            self.abstract = abstract
+        self.title = article['ArticleTitle']
+
+        if query:
+            self.cis_keywords.add(unicode(query))
+
+        self.save()
     def classname(self):
         classname = self.__class__.__name__
         return classname
