@@ -7,15 +7,24 @@ from Bio import Entrez
 import logging
 logger = logging.getLogger('lum')
 
+
 @task(queue="lum", name="scrape_pubmed")
 def scrape_pubmed(publication, query):
-    logger.debug(type(publication))
     Entrez.email = "jordotech@gmail.com"
     handle = Entrez.efetch(db="pubmed", id=publication.pmid, retmode="xml")
     data = Entrez.read(handle)
     handle.close()
     authors = []
     article = data[0]['MedlineCitation']['Article']
+    eid_type = None
+    try:
+        eid_type = article['ELocationID'][0].attributes['EIdType']
+        doi = str(article['ELocationID'][0])
+    except: pass
+    else:
+        if eid_type == 'doi':
+            publication.doi = doi
+    print data[0]['MedlineCitation']
     try:
         authors = article['AuthorList']
     except:
@@ -26,12 +35,12 @@ def scrape_pubmed(publication, query):
     abstract = ''
     try:
         abstract = article['Abstract']['AbstractText']
+        publication.abstract = abstract
+
     except:
         pass
-    else:
-        publication.abstract = abstract
-        publication.title = article['ArticleTitle']
+    publication.title = article['ArticleTitle']
 
     if query:
         publication.cis_keywords.add(unicode(query))
-        publication.save()
+    publication.save()

@@ -17,7 +17,7 @@ def psearch(pmid):
     fetch = PubMedFetcher()
     ret = fetch.article_by_pmid(pmid)
     print ret.to_dict()
-
-def test():
-    p = Publication.objects.get(pmid=27342568)
-    p.self_update()
+from lum.tasks import scrape_pubmed
+def test(pmid):
+    p = Publication.objects.get(pmid=pmid)
+    scrape_pubmed(p, None)
