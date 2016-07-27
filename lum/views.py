@@ -42,7 +42,7 @@ def save_user_query(request, query=None):
 @login_required
 def save_pmid_to_query(request, query_id, pmid):
     pub = Publication.objects.get_or_create(pmid=pmid)[0]
-    if not pub['title']:
+    if not pub.title:
         pub.self_update()
     query = SearchStash.objects.get(pk=query_id)
     query.pmids.add(pub)

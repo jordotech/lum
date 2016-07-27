@@ -35,7 +35,7 @@ class Author(models.Model):
     first_name = models.CharField('First Name', max_length=200)
     last_name = models.CharField('Last Name', max_length=200)
     initials = models.CharField('Initials', max_length=20)
-    labs = models.ManyToManyField(Lab, related_name="author_set", verbose_name="labs", blank=True, null=True,)
+    labs = models.ManyToManyField(Lab, related_name="author_set", verbose_name="labs", blank=True)
     @property
     def full_name(self):
         return '%s, %s' % (self.last_name, self.first_name)
@@ -75,6 +75,10 @@ from metapub import PubMedFetcher
 from Bio import Entrez
 import logging
 logger = logging.getLogger('lum')
+from celery import Celery
+from django.conf import settings
+app = Celery('lum.tasks', broker=settings.BROKER_URL)
+
 class Publication(models.Model):
     created = models.DateTimeField(editable=False, default=timezone.now())
     modified = models.DateTimeField(default=timezone.now())
@@ -102,28 +106,8 @@ class Publication(models.Model):
                 )[0]
 
     def self_update(self, query=None):
-        Entrez.email = "jordotech@gmail.com"
-        handle = Entrez.efetch(db="pubmed", id=self.pmid, retmode="xml")
-        data = Entrez.read(handle)
-        handle.close()
-        authors = []
-        article = data[0]['MedlineCitation']['Article']
-        try: authors = article['AuthorList']
-        except: pass
-        else:
-            self.update_authors(authors)
+        app.send_task('scrape_pubmed', args=[self, query], kwargs={})
 
-        abstract = ''
-        try: abstract = article['Abstract']['AbstractText']
-        except: pass
-        else:
-            self.abstract = abstract
-        self.title = article['ArticleTitle']
-
-        if query:
-            self.cis_keywords.add(unicode(query))
-
-        self.save()
     def classname(self):
         classname = self.__class__.__name__
         return classname

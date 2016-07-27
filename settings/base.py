@@ -1,5 +1,7 @@
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+import djcelery
+djcelery.setup_loader()
 
 SECRET_KEY = 'g+)@fwqh$60!^hu^p%0xsm=5e50vg&+f!dkz8fbbm*1_t$yop3'
 LOGIN_REDIRECT_URL = '/'
@@ -15,11 +17,15 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'lum',
+
     'taggit',
     #'taggit_templatetags',
     'taggit_autosuggest',
     'django_extensions',
+    'celery',
+    'djcelery',
+    'flower',
+    'lum',
 )
 TEMPLATES = [
     {
@@ -39,8 +45,6 @@ TEMPLATES = [
 
         },
         'DIRS': [os.path.join(BASE_DIR, 'templates'), ],
-
-
     },
 ]
 MIDDLEWARE_CLASSES = (
@@ -55,9 +59,6 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'lum.urls'
 
 WSGI_APPLICATION = 'lum.wsgi.application'
-
-# Internationalization
-# https://docs.djangoproject.com/en/1.6/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -78,3 +79,14 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 from .log_settings import *
+
+CELERY_IMPORTS = ("lum.tasks",)
+CELERY_TIMEZONE = 'UTC'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+#CELERY_ACCEPT_CONTENT = ['pickle', 'json']
+CELERYD_POOL_RESTARTS = True
+BROKER_URL = 'redis://localhost:6379/0' #redis
+
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
