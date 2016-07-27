@@ -106,7 +106,7 @@ class Publication(models.Model):
                 )[0]
 
     def self_update(self, query=None):
-        app.send_task('scrape_pubmed', args=[self, query], kwargs={})
+        app.send_task('scrape_pubmed', args=[self, query])
 
     def classname(self):
         classname = self.__class__.__name__

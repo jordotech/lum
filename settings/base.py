@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 import djcelery
@@ -85,7 +86,7 @@ CELERY_TIMEZONE = 'UTC'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-#CELERY_ACCEPT_CONTENT = ['pickle', 'json']
+CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 CELERYD_POOL_RESTARTS = True
 BROKER_URL = 'redis://localhost:6379/0' #redis
 

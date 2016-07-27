@@ -1,14 +1,15 @@
 from __future__ import absolute_import
-from celery import task, shared_task
-from celery import Celery
-from django.conf import settings
-#app = Celery('lum.tasks', broker=settings.BROKER_URL)
+
+from celery import shared_task, task
+
+
 from Bio import Entrez
+import logging
+logger = logging.getLogger('lum')
 
 @task(queue="lum", name="scrape_pubmed")
 def scrape_pubmed(publication, query):
-    pass
-    '''
+    logger.debug(type(publication))
     Entrez.email = "jordotech@gmail.com"
     handle = Entrez.efetch(db="pubmed", id=publication.pmid, retmode="xml")
     data = Entrez.read(handle)
@@ -33,6 +34,4 @@ def scrape_pubmed(publication, query):
 
     if query:
         publication.cis_keywords.add(unicode(query))
-
         publication.save()
-    '''
