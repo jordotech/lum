@@ -51,3 +51,4 @@ django-celery==3.1.17
 flower==0.9.1
 redis==2.10.5
 hg+https://bitbucket.org/fabian/django-taggit-autosuggest/#egg=django_taggit_autosuggest
+biopython==1.67
