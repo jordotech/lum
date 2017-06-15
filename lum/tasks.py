@@ -12,6 +12,7 @@ import logging
 
 @task()
 def celerybeat_healthcheck():
+    print 'foo'
     logger.debug('running healthcheck task...')
     return True
 

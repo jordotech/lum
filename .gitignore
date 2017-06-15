@@ -27,7 +27,8 @@ develop-eggs
 # Installer logs
 cache
 pip-log.txt
-
+.env
+.idea
 # Unit test / coverage reports
 .coverage
 .tox
