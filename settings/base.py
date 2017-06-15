@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 import djcelery
+from datetime import timedelta
 djcelery.setup_loader()
 
 SECRET_KEY = 'g+)@fwqh$60!^hu^p%0xsm=5e50vg&+f!dkz8fbbm*1_t$yop3'
@@ -91,3 +92,11 @@ CELERYD_POOL_RESTARTS = True
 BROKER_URL = 'redis://localhost:6379/0' #redis
 
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+CELERYBEAT_SCHEDULE = {
+    'celerybeat_healthcheck': {
+        'task': 'lum.tasks.celerybeat_healthcheck',
+        'schedule': timedelta(seconds=5),
+    },
+
+}

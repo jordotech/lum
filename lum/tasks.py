@@ -8,6 +8,16 @@ import logging
 logger = logging.getLogger('lum')
 
 
+import logging
+
+@task()
+def celerybeat_healthcheck():
+    logger.debug('running healthcheck task...')
+    return True
+
+'''
+
+
 @task(queue="lum", name="scrape_pubmed")
 def scrape_pubmed(publication, query):
     Entrez.email = "jordotech@gmail.com"
@@ -44,3 +54,5 @@ def scrape_pubmed(publication, query):
     if query:
         publication.cis_keywords.add(unicode(query))
     publication.save()
+
+'''
